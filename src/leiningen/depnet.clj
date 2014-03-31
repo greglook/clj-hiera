@@ -17,7 +17,7 @@
    :vertical? true
    :show-external? false
    :cluster-depth 0
-   :ignore-ns nil})
+   :ignore-ns #{}})
 
 
 (defn- find-sources

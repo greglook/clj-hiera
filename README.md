@@ -26,7 +26,23 @@ may be given as command-line arguments:
 ## Options
 
 Graph generation may be controlled with additional options under the `:depnet`
-key in the project map. Common options should be placed in the `user` profile.
+key in the project map. The available options, and their default values are:
+
+```clojure
+{:path "target/dependencies.png"
+:vertical? true
+:show-external? false
+:cluster-depth 0
+:ignore-ns #{}}
+```
+
+| name | description |
+|------|-------------|
+| `:path` | Gives the location to output the graph image to. |
+| `:vertical?` | Specifies whether to lay out the graph vertically or horizontally. |
+| `show-external?` | When set, the graph will include nodes for namespaces which are not defined in the source files, marked by a dashed border. |
+| `:cluster-depth` | Sets the number of namespace segments to cluster nodes by. Clusters must contain at least one fewer segment than the nodes themselves. |
+| `:ignore-ns` | A set of namespace prefixes to exclude from the graph. For example, `#{clojure}` would exclude `clojure.string`, `clojure.java.io`, etc. |
 
 ## License
 
