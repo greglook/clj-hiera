@@ -1,0 +1,98 @@
+(ns leiningen.depnet
+  (:require
+    [clojure.java.io :as io]
+    [clojure.pprint :refer [pprint]]
+    [clojure.set :as set]
+    [clojure.string :as str]
+    (clojure.tools.namespace
+      [dependency :as ns-dep]
+      [file :as ns-file]
+      [find :as ns-find]
+      [track :as ns-track])
+    [rhizome.viz :as viz]))
+
+
+(def default-options
+  {:path "target/dependencies.png"
+   :show-external? false
+   :cluster-depth 0})
+
+
+(defn- find-sources
+  "Finds a list of source files located in the given directories."
+  [dirs]
+  (->>
+    dirs
+    (filter identity)
+    (map (comp ns-find/find-clojure-sources-in-dir io/file))
+    flatten))
+
+
+(defn- file-deps
+  "Calculates the dependency graph of the namespaces in the given files."
+  [files]
+  (->>
+    files
+    (ns-file/add-files {})
+    ::ns-track/deps))
+
+
+(defn- file-namespaces
+  "Calculates the namespaces defined by the given files."
+  [files]
+  (map (comp second ns-file/read-file-ns-decl) files))
+
+
+(defn- graph-nodes
+  [context]
+  (->
+    (:graph context)
+    ns-dep/nodes
+    (cond->>
+      (not (:show-external? context)) (filter (:internal-ns context)))))
+
+
+(defn- adjacent-to
+  [context node]
+  (->
+    (:graph context)
+    (ns-dep/immediate-dependencies node)
+    (cond->>
+      (not (:show-external? context)) (filter (:internal-ns context)))))
+
+
+(defn- render-node
+  [context node]
+  (let [internal? (contains? (:internal-ns context) node)]
+    {:label node
+     :style (if internal? :solid :dashed)}))
+
+
+(defn- node-cluster
+  [context node]
+  (let [depth (:cluster-depth context)]
+    (when (< 0 depth)
+      (->
+        (str node)
+        (str/split #"\.")
+        (as-> parts
+          (take (min depth (dec (count parts))) parts)
+          (str/join \. parts))))))
+
+
+(defn depnet
+  "Generate a dependency graph of the namespaces in the project."
+  [project & args]
+  (let [source-files (find-sources (concat (:source-paths project) args))
+        context (merge default-options
+                       (:depnet project)
+                       {:internal-ns (set (file-namespaces source-files))
+                        :graph (file-deps source-files)})]
+    (viz/save-graph
+      (graph-nodes context)
+      (partial adjacent-to context)
+      :vertical? false
+      :node->descriptor (partial render-node context)
+      :node->cluster (partial node-cluster context)
+      :cluster->descriptor (fn [c] {:label c})
+      :filename (:path context))))
