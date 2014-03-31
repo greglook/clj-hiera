@@ -1,4 +1,4 @@
-(ns leiningen.depnet
+(ns leiningen.hiera
   (:require
     [clojure.java.io :as io]
     [clojure.set :as set]
@@ -93,12 +93,12 @@
           (str/join \. parts))))))
 
 
-(defn depnet
+(defn hiera
   "Generate a dependency graph of the namespaces in the project."
   [project & args]
   (let [source-files (find-sources (concat (:source-paths project) args))
         context (merge default-options
-                       (:depnet project)
+                       (:hiera-graph project)
                        {:internal-ns (set (file-namespaces source-files))
                         :graph (file-deps source-files)})]
     (rhizome/save-graph
