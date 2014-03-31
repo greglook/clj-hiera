@@ -14,6 +14,7 @@
 
 (def default-options
   {:path "target/dependencies.png"
+   :vertical? true
    :show-external? false
    :cluster-depth 0})
 
@@ -91,7 +92,7 @@
     (viz/save-graph
       (graph-nodes context)
       (partial adjacent-to context)
-      :vertical? false
+      :vertical? (:vertical? context)
       :node->descriptor (partial render-node context)
       :node->cluster (partial node-cluster context)
       :cluster->descriptor (fn [c] {:label c})
