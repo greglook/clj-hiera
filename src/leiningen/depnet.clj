@@ -1,7 +1,6 @@
 (ns leiningen.depnet
   (:require
     [clojure.java.io :as io]
-    [clojure.pprint :refer [pprint]]
     [clojure.set :as set]
     [clojure.string :as str]
     (clojure.tools.namespace
@@ -9,7 +8,7 @@
       [file :as ns-file]
       [find :as ns-find]
       [track :as ns-track])
-    [rhizome.viz :as viz]))
+    [rhizome.viz :as rhizome]))
 
 
 (def default-options
@@ -102,7 +101,7 @@
                        (:depnet project)
                        {:internal-ns (set (file-namespaces source-files))
                         :graph (file-deps source-files)})]
-    (viz/save-graph
+    (rhizome/save-graph
       (graph-nodes context)
       (partial adjacent-to context)
       :vertical? (:vertical? context)
