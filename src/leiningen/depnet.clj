@@ -16,7 +16,8 @@
   {:path "target/dependencies.png"
    :vertical? true
    :show-external? false
-   :cluster-depth 0})
+   :cluster-depth 0
+   :ignore-ns nil})
 
 
 (defn- find-sources
@@ -44,22 +45,28 @@
   (map (comp second ns-file/read-file-ns-decl) files))
 
 
+(defn- filter-ns
+  "Filters namespaces based on the context options."
+  [context namespaces]
+  (cond->> namespaces
+    (not (:show-external? context)) (filter (:internal-ns context))
+    (:ignore-ns context) (filter (complement (:ignore-ns context)))))
+
+
 (defn- graph-nodes
   [context]
-  (->
+  (->>
     (:graph context)
     ns-dep/nodes
-    (cond->>
-      (not (:show-external? context)) (filter (:internal-ns context)))))
+    (filter-ns context)))
 
 
 (defn- adjacent-to
   [context node]
-  (->
-    (:graph context)
-    (ns-dep/immediate-dependencies node)
-    (cond->>
-      (not (:show-external? context)) (filter (:internal-ns context)))))
+  (->>
+    node
+    (ns-dep/immediate-dependencies (:graph context))
+    (filter-ns context)))
 
 
 (defn- render-node
