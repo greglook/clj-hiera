@@ -45,12 +45,18 @@
   (map (comp second ns-file/read-file-ns-decl) files))
 
 
+(defn- ignored-ns?
+  [context n]
+  (not (some #(.startsWith (str n) (str %))
+             (:ignore-ns context))))
+
+
 (defn- filter-ns
   "Filters namespaces based on the context options."
   [context namespaces]
   (cond->> namespaces
     (not (:show-external? context)) (filter (:internal-ns context))
-    (:ignore-ns context) (filter (complement (:ignore-ns context)))))
+    (:ignore-ns context) (filter (partial ignored-ns? context))))
 
 
 (defn- graph-nodes
