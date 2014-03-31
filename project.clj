@@ -1,4 +1,4 @@
-(defproject lein-depnet "0.1.0"
+(defproject lein-depnet "0.1.0-SNAPSHOT"
   :description "Generates a network dependency graph for project namespaces."
   :url "https://github.com/greglook/lein-depnet"
   :license {:name "Public Domain"
