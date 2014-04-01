@@ -13,7 +13,7 @@ additional options for graph generation.
 ## Usage
 
 Add `[lein-hiera "0.6.0"]` into the `:plugins` vector of your
-`:user` profile.
+`:user` profile, then run:
 
     $ lein hiera
 
@@ -23,6 +23,14 @@ in the project's `:source-paths` are included. Additional directories to include
 may be given as command-line arguments:
 
     $ lein hiera ../foo-lib/src ../bar-lib/src
+
+## Example
+
+This image shows the dependency hierarchy from a moderately complex project. The
+namespaces are clustered by two levels, and it shows a dependency on the external
+`puget` library.
+
+![Example dependency hierarchy](doc/example.png)
 
 ## Options
 
