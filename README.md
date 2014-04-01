@@ -12,7 +12,7 @@ additional options for graph generation.
 
 ## Usage
 
-Add `[lein-hiera "0.1.0"]` into the `:plugins` vector of your
+Add `[lein-hiera "0.5.0"]` into the `:plugins` vector of your
 `:user` profile.
 
     $ lein hiera
