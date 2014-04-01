@@ -16,6 +16,7 @@
    :vertical? true
    :show-external? false
    :cluster-depth 0
+   :trim-ns-prefix true
    :ignore-ns #{}})
 
 
@@ -74,13 +75,6 @@
     (filter-ns context)))
 
 
-(defn- render-node
-  [context node]
-  (let [internal? (contains? (:internal-ns context) node)]
-    {:label node
-     :style (if internal? :solid :dashed)}))
-
-
 (defn- node-cluster
   [context node]
   (let [depth (:cluster-depth context)]
@@ -91,6 +85,16 @@
         (as-> parts
           (take (min depth (dec (count parts))) parts)
           (str/join \. parts))))))
+
+
+(defn- render-node
+  [context node]
+  (let [internal? (contains? (:internal-ns context) node)
+        cluster (node-cluster context node)]
+    {:label (if (and cluster (:trim-ns-prefix context))
+              (subs (str node) (inc (count cluster)))
+              (str node))
+     :style (if internal? :solid :dashed)}))
 
 
 (defn hiera
