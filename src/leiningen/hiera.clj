@@ -98,7 +98,7 @@
   [project & args]
   (let [source-files (find-sources (concat (:source-paths project) args))
         context (merge default-options
-                       (:hiera-graph project)
+                       (:hiera project)
                        {:internal-ns (set (file-namespaces source-files))
                         :graph (file-deps source-files)})]
     (rhizome/save-graph

@@ -26,11 +26,11 @@ may be given as command-line arguments:
 
 ## Options
 
-Graph generation may be controlled with additional options under the
-`:hiera-graph` key in the project map. The available options, and their default
-values are:
+Graph generation may be controlled with additional options under the `:hiera`
+key in the project map. The available options, and their default values are:
 
 ```clojure
+:hiera
 {:path "target/dependencies.png"
  :vertical? true
  :show-external? false
