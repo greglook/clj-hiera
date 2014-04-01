@@ -32,10 +32,10 @@ values are:
 
 ```clojure
 {:path "target/dependencies.png"
-:vertical? true
-:show-external? false
-:cluster-depth 0
-:ignore-ns #{}}
+ :vertical? true
+ :show-external? false
+ :cluster-depth 0
+ :ignore-ns #{}}
 ```
 
 | name | description |
