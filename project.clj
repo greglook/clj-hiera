@@ -1,4 +1,4 @@
-(defproject lein-hiera "0.8.0"
+(defproject lein-hiera "0.9.0-SNAPSHOT"
   :description "Generates a dependency hierarchy graph for project namespaces."
   :url "https://github.com/greglook/lein-hiera"
   :license {:name "Public Domain"
