@@ -91,7 +91,8 @@
   [context node]
   (let [internal? (contains? (:internal-ns context) node)
         cluster (node-cluster context node)]
-    {:label (if (and cluster (:trim-ns-prefix context))
+    {:label (if (and (:trim-ns-prefix context)
+                     (not (empty? cluster)))
               (subs (str node) (inc (count cluster)))
               (str node))
      :style (if internal? :solid :dashed)}))
