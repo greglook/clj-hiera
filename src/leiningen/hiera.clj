@@ -84,7 +84,8 @@
         (str/split #"\.")
         (as-> parts
           (take (min depth (dec (count parts))) parts)
-          (str/join \. parts))))))
+          (str/join \. parts)
+          (when-not (empty? parts) parts))))))
 
 
 (defn- render-node
