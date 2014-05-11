@@ -17,7 +17,7 @@ Add `[lein-hiera "0.8.0"]` into the `:plugins` vector of your
 
     $ lein hiera
 
-This will generate a dependency graph in `target/dependencies.png`, showing the
+This will generate a dependency graph in `target/ns-hierarchy.png`, showing the
 interdependency of the project's source namespaces. By default, all directories
 in the project's `:source-paths` are included. Additional directories to include
 may be given as command-line arguments:
@@ -39,7 +39,7 @@ key in the project map. The available options, and their default values are:
 
 ```clojure
 :hiera
-{:path "target/dependencies.png"
+{:path "target/ns-hierarchy.png"
  :vertical? true
  :show-external? false
  :cluster-depth 0

@@ -12,7 +12,7 @@
 
 
 (def default-options
-  {:path "target/dependencies.png"
+  {:path "target/ns-hierarchy.png"
    :vertical? true
    :show-external? false
    :cluster-depth 0
