@@ -8,8 +8,26 @@
       [file :as ns-file]
       [find :as ns-find]
       [track :as ns-track])
-    [rhizome.viz :as rhizome]))
+    [rhizome.viz :as rhizome])
+  (:import (java.io.File)))
 
+
+
+;;; add two local functions until they are implemented into tools.namespace. see: http://dev.clojure.org/jira/browse/TNS-29?focusedCommentId=36741#comment-36741
+(defn clojurescript-file?
+  "Returns true if the java.io.File represents a normal ClojureScript source
+  file."
+  [file]
+  (and (.isFile file)
+       (.endsWith (.getName file) ".cljs")))
+
+(defn find-sources-in-dir
+  "Searches recursively under dir for source files (.clj and .cljs).
+  Returns a sequence of File objects, in breadth-first sort order."
+  [dir]
+  ;; Use sort by absolute path to get breadth-first search.
+  (sort-by #(.getAbsolutePath %)
+           (filter #(or (clojurescript-file? %) (ns-file/clojure-file? %)) (file-seq dir))))
 
 (def default-options
   {:path "target/dependencies.png"
@@ -26,7 +44,7 @@
   (->>
     dirs
     (filter identity)
-    (map (comp ns-find/find-clojure-sources-in-dir io/file))
+    (map (comp find-sources-in-dir io/file))
     flatten))
 
 
