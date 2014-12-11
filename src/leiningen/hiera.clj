@@ -40,7 +40,7 @@
     file-seq
     (filter #(or (clojurescript-file? %)
                  (ns-file/clojure-file? %)))
-    (sort-by #(.getAbsolutePath %))))
+    (sort-by #(.getAbsolutePath ^File %))))
 
 
 (defn- find-sources
