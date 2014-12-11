@@ -30,9 +30,9 @@
            (filter #(or (clojurescript-file? %) (ns-file/clojure-file? %)) (file-seq dir))))
 
 (def default-options
-  {:path "target/dependencies.png"
-   :vertical? true
-   :show-external? false
+  {:path "target/ns-hierarchy.png"
+   :vertical true
+   :show-external false
    :cluster-depth 0
    :trim-ns-prefix true
    :ignore-ns #{}})
@@ -73,8 +73,11 @@
   "Filters namespaces based on the context options."
   [context namespaces]
   (cond->> namespaces
-    (not (:show-external? context)) (filter (:internal-ns context))
-    (:ignore-ns context) (filter (partial ignored-ns? context))))
+    (not (:show-external? context (:show-external context))) ; TODO: deprecate :show-external?
+    (filter (:internal-ns context))
+
+    (:ignore-ns context)
+    (filter (partial ignored-ns? context))))
 
 
 (defn- graph-nodes
@@ -128,7 +131,7 @@
     (rhizome/save-graph
       (graph-nodes context)
       (partial adjacent-to context)
-      :vertical? (:vertical? context)
+      :vertical? (:vertical? context (:vertical context)) ; TODO: deprecate :vertical?
       :node->descriptor (partial render-node context)
       :node->cluster (partial node-cluster context)
       :cluster->descriptor (fn [c] {:label c})
