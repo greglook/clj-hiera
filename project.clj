@@ -7,5 +7,5 @@
   :deploy-branches ["master"]
   :eval-in-leiningen true
 
-  :dependencies [[org.clojure/tools.namespace "0.2.4"]
+  :dependencies [[org.clojure/tools.namespace "0.2.7"]
                  [rhizome "0.2.0"]])
