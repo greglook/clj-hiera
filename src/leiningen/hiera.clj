@@ -140,4 +140,5 @@
       :node->descriptor (partial render-node context)
       :node->cluster (partial node-cluster context)
       :cluster->descriptor (fn [c] {:label c})
-      :filename (:path context))))
+      :filename (:path context))
+    (println "Generated namespace graph in" (:path context))))
