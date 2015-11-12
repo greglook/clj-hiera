@@ -136,7 +136,7 @@
     (rhizome/save-graph
       (graph-nodes context)
       (partial adjacent-to context)
-      :vertical? (:vertical? context (:vertical context)) ; TODO: deprecate :vertical?
+      :vertical? (:vertical context)
       :node->descriptor (partial render-node context)
       :node->cluster (partial node-cluster context)
       :cluster->descriptor (fn [c] {:label c})
