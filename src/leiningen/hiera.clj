@@ -1,21 +1,21 @@
 (ns leiningen.hiera
   (:require
-    [clojure.java.io :as io]
-    [clojure.set :as set]
-    [clojure.string :as str]
-    (clojure.tools.namespace
-      [dependency :as ns-dep]
-      [file :as ns-file]
-      [find :as ns-find]
-      [track :as ns-track])
-    [rhizome.viz :as rhizome])
+   [clojure.java.io :as io]
+   [clojure.set :as set]
+   [clojure.string :as str]
+   (clojure.tools.namespace
+    [dependency :as ns-dep]
+    [file :as ns-file]
+    [find :as ns-find]
+    [track :as ns-track])
+   [rhizome.viz :as rhizome]
+   [rhizome.dot :as rdot])
   (:import
-    java.io.File))
-
+   java.io.File))
 
 (def default-options
   {:path "target/ns-hierarchy.png"
-   :vertical true
+   :vertical false
    :show-external false
    :cluster-depth 0
    :trim-ns-prefix true
@@ -36,30 +36,30 @@
   Returns a sequence of File objects, in breadth-first sort order."
   [dir]
   (->>
-    (io/file dir)
-    file-seq
-    (filter #(or (clojurescript-file? %)
-                 (ns-file/clojure-file? %)))
-    (sort-by #(.getAbsolutePath ^File %))))
+   (io/file dir)
+   file-seq
+   (filter #(or (clojurescript-file? %)
+                (ns-file/clojure-file? %)))
+   (sort-by #(.getAbsolutePath ^File %))))
 
 
 (defn- find-sources
   "Finds a list of source files located in the given directories."
   [dirs]
   (->>
-    dirs
-    (filter identity)
-    (map find-sources-in-dir)
-    flatten))
+   dirs
+   (filter identity)
+   (map find-sources-in-dir)
+   flatten))
 
 
 (defn- file-deps
   "Calculates the dependency graph of the namespaces in the given files."
   [files]
   (->>
-    files
-    (ns-file/add-files {})
-    ::ns-track/deps))
+   files
+   (ns-file/add-files {})
+   ::ns-track/deps))
 
 
 (defn- file-namespaces
@@ -88,17 +88,17 @@
 (defn- graph-nodes
   [context]
   (->>
-    (:graph context)
-    ns-dep/nodes
-    (filter-ns context)))
+   (:graph context)
+   ns-dep/nodes
+   (filter-ns context)))
 
 
 (defn- adjacent-to
   [context node]
   (->>
-    node
-    (ns-dep/immediate-dependencies (:graph context))
-    (filter-ns context)))
+   node
+   (ns-dep/immediate-dependencies (:graph context))
+   (filter-ns context)))
 
 
 (defn- node-cluster
@@ -106,12 +106,12 @@
   (let [depth (:cluster-depth context)]
     (when (< 0 depth)
       (->
-        (str node)
-        (str/split #"\.")
-        (as-> parts
-          (take (min depth (dec (count parts))) parts)
-          (str/join \. parts)
-          (when-not (empty? parts) parts))))))
+       (str node)
+       (str/split #"\.")
+       (as-> parts
+           (take (min depth (dec (count parts))) parts)
+         (str/join \. parts)
+         (when-not (empty? parts) parts))))))
 
 
 (defn- render-node
@@ -124,6 +124,11 @@
               (str node))
      :style (if internal? :solid :dashed)}))
 
+(defn- save-dot
+  [string filename]
+  (with-open [wrtr (io/writer filename)]
+    (.write wrtr string))
+  (println "Generated namespace graph in" filename))
 
 (defn hiera
   "Generate a dependency graph of the namespaces in the project."
@@ -132,13 +137,18 @@
         context (merge default-options
                        (:hiera project)
                        {:internal-ns (set (file-namespaces source-files))
-                        :graph (file-deps source-files)})]
-    (rhizome/save-graph
-      (graph-nodes context)
-      (partial adjacent-to context)
-      :vertical? (:vertical context)
-      :node->descriptor (partial render-node context)
-      :node->cluster (partial node-cluster context)
-      :cluster->descriptor (fn [c] {:label c})
-      :filename (:path context))
-    (println "Generated namespace graph in" (:path context))))
+                        :graph (file-deps source-files)})
+        conf {:vertical? (:vertical context)
+              :node->descriptor (partial render-node context)
+              :node->cluster (partial node-cluster context)
+              :cluster->descriptor (fn [c] {:label c})}]
+    (apply (partial rhizome/save-graph
+                    (graph-nodes context)
+                    (partial adjacent-to context))
+           (flatten (vec (assoc conf :filename (:path context)))))
+    (println "Generated namespace graph in" (:path context))
+    (save-dot (apply (partial rdot/graph->dot
+                              (graph-nodes context)
+                              (partial adjacent-to context))
+                     (flatten (vec conf)))
+              (str/replace (:path context) #".png" ".dot"))))
