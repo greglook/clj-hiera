@@ -9,4 +9,4 @@
 
   :dependencies
   [[org.clojure/tools.namespace "0.2.10"]
-   [rhizome "0.2.5"]])
+   [rhizome "0.2.9"]])
