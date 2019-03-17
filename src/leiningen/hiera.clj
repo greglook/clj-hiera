@@ -3,12 +3,10 @@
     [clojure.java.io :as io]
     [clojure.set :as set]
     [clojure.string :as str]
-    (clojure.tools.namespace
-      [dependency :as ns-dep]
-      [file :as ns-file]
-      [find :as ns-find]
-      [track :as ns-track])
-    [rhizome.viz :as rhizome])
+    [clojure.tools.namespace.dependency :as ns-dep]
+    [clojure.tools.namespace.file :as ns-file]
+    [clojure.tools.namespace.find :as ns-find]
+    [clojure.tools.namespace.track :as ns-track])
   (:import
     java.io.File))
 
@@ -125,20 +123,70 @@
      :style (if internal? :solid :dashed)}))
 
 
+(defn- parse-args
+  "Parse the provided command-line options, returning a map of keyword options
+  followed by a sequence of source paths."
+  [args]
+  (loop [opts {}
+         args args]
+    (if (and (<= 2 (count args)) (= \: (ffirst args)))
+      (let [[k v & more] args
+            k (keyword (subs k 1))]
+        (case k
+          (:dot :path)
+          (recur (assoc opts k v) more)
+
+          (:vertical :show-external :cluster-depth :trim-ns-prefix)
+          (recur (assoc opts k (read-string v)) more)
+
+          :ignore-ns
+          (recur (update opts k (fnil conj #{}) v) more)
+
+          (throw (IllegalArgumentException.
+                   (str "Unknown hiera option: " k)))))
+      [opts args])))
+
+
 (defn hiera
-  "Generate a dependency graph of the namespaces in the project."
+  "Generate a dependency graph of the namespaces in the project. Accepts keyword options and an optional list of additional source paths to search.
+
+  Options may include:
+
+  - :dot             If set, save the raw DOT graph to this path.
+  - :path            The location to output the graph image to.
+  - :vertical        Specifies whether to lay out the graph vertically or horizontally.
+  - :show-external   When set, the graph will include nodes for namespaces which are not defined in the source files, marked by a dashed border.
+  - :cluster-depth   Sets the number of namespace segments to cluster nodes by. Clusters must contain at least one fewer segment than the nodes themselves.
+  - :trim-ns-prefix  When set, clustered namespaces will have the cluster prefix removed from the node labels.
+  - :ignore-ns       A namespace prefix to exclude from the graph. May be provided multiple times.
+
+  Example usage:
+
+      lein hiera :cluster-depth 2 ../project/src"
   [project & args]
-  (let [source-files (find-sources (concat (:source-paths project) args))
+  (require 'rhizome.dot 'rhizome.viz)
+  (let [[opts source-paths] (parse-args args)
+        source-files (find-sources (into (set (:source-paths project)) source-paths))
         context (merge default-options
                        (:hiera project)
+                       opts
                        {:internal-ns (set (file-namespaces source-files))
-                        :graph (file-deps source-files)})]
-    (rhizome/save-graph
-      (graph-nodes context)
-      (partial adjacent-to context)
-      :vertical? (:vertical context)
-      :node->descriptor (partial render-node context)
-      :node->cluster (partial node-cluster context)
-      :cluster->descriptor (fn [c] {:label c})
-      :filename (:path context))
-    (println "Generated namespace graph in" (:path context))))
+                        :graph (file-deps source-files)})
+        graph->dot (ns-resolve 'rhizome.dot 'graph->dot)
+        dot->image (ns-resolve 'rhizome.viz 'dot->image)
+        save-image (ns-resolve 'rhizome.viz 'save-image)
+        dot-graph (graph->dot
+                    (graph-nodes context)
+                    (partial adjacent-to context)
+                    :vertical? (:vertical context)
+                    :node->descriptor (partial render-node context)
+                    :node->cluster (partial node-cluster context)
+                    :cluster->descriptor (fn [c] {:label c}))]
+    (when-let [dot-path (:dot context)]
+      (io/make-parents dot-path)
+      (spit dot-path dot-graph)
+      (println "Wrote namespace dot graph to" dot-path))
+    (when-let [image-path (:path context)]
+      (io/make-parents image-path)
+      (save-image (dot->image dot-graph) image-path)
+      (println "Generated namespace graph at" image-path))))
