@@ -1,4 +1,4 @@
-(defproject lein-hiera "1.0.0"
+(defproject lein-hiera "1.1.0"
   :description "Generates a dependency hierarchy graph for project namespaces."
   :url "https://github.com/greglook/lein-hiera"
   :license {:name "Public Domain"
@@ -8,5 +8,5 @@
   :eval-in-leiningen true
 
   :dependencies
-  [[org.clojure/tools.namespace "0.2.10"]
+  [[org.clojure/tools.namespace "0.2.11"]
    [rhizome "0.2.9"]])
