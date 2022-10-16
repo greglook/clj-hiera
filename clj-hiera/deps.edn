@@ -1,0 +1,11 @@
+{:paths ["src" "resources"]
+
+ :deps
+ {org.clojure/clojure {:mvn/version "1.11.1"}
+  org.clojure/tools.cli {:mvn/version "1.0.214"}
+  org.clojure/tools.namespace {:mvn/version "1.3.0"}
+  rhizome/rhizome {:mvn/version "0.2.9"}}
+
+ :aliases
+ {:run
+  {:main-opts ["-m" "hiera.main"]}}}
