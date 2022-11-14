@@ -1,12 +1,11 @@
-(defproject lein-hiera "1.1.0"
+(defproject lein-hiera "2.0.0-SNAPSHOT"
   :description "Generates a dependency hierarchy graph for project namespaces."
-  :url "https://github.com/greglook/lein-hiera"
+  :url "https://github.com/greglook/clj-hiera"
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
-  :deploy-branches ["master"]
+  :deploy-branches ["main"]
   :eval-in-leiningen true
 
   :dependencies
-  [[org.clojure/tools.namespace "0.2.11"]
-   [rhizome "0.2.9"]])
+  [[com.mvxcvi/clj-hiera "2.0.0-SNAPSHOT"]])
