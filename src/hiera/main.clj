@@ -27,35 +27,16 @@
 
 ;; ## Graph Generation
 
-;; Add two local functions until they are added to `clojure.tools.namespace`.
-;; See: http://dev.clojure.org/jira/browse/TNS-35
-(defn- clojurescript-file?
-  "Returns true if the file represents a normal ClojureScript source file."
-  [^File file]
-  (and (.isFile file)
-       (.endsWith (.getName file) ".cljs")))
-
-
-(defn- find-sources-in-dir
-  "Searches recursively under dir for source files (.clj and .cljs).
-  Returns a sequence of File objects, in breadth-first sort order."
-  [dir]
-  (->>
-    (io/file dir)
-    (file-seq)
-    (filter #(or (clojurescript-file? %)
-                 (ns-file/clojure-file? %)))
-    (sort-by #(.getAbsolutePath ^File %))))
-
-
 (defn- find-sources
   "Finds a list of source files located in the given directories."
   [dirs]
   (->>
     dirs
-    (filter identity)
-    (map find-sources-in-dir)
-    (flatten)))
+    (remove nil?)
+    (map io/file)
+    (mapcat file-seq)
+    (filter (some-fn ns-file/clojurescript-file?
+                     ns-file/clojure-file?))))
 
 
 (defn- file-deps
