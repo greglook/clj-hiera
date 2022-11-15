@@ -157,9 +157,26 @@
 (defn- write-cluster-graph
   "Write the cluster dot and image files."
   [data]
-  ;; TODO: implement
-  #_
-  (let [dot-str "..."
+  (let [cluster-deps (reduce
+                       (fn add-deps
+                         [deps from-ns]
+                         (let [from-cluster (node-cluster data from-ns)]
+                           (reduce
+                             (fn add-dep
+                               [deps to-ns]
+                               (let [to-cluster (node-cluster data to-ns)]
+                                 (if (not= from-cluster to-cluster)
+                                   (update deps from-cluster (fnil conj #{}) to-cluster)
+                                   deps)))
+                             deps
+                             (adjacent-to data from-ns))))
+                       {}
+                       (graph-nodes data))
+        dot-str (dot/graph->dot
+                  (into (set (keys cluster-deps)) cat (vals cluster-deps))
+                  cluster-deps
+                  :vertical? (= :vertical (:layout data))
+                  :node->descriptor (fn [n] {:label (str n), :shape "box"}))
         dot-file (io/file (:output data) "clusters.dot")
         image-file (io/file (:output data) "clusters.png")]
     (io/make-parents image-file)

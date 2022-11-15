@@ -11,7 +11,7 @@ This tool was originally inspired by
 additional options for graph generation.
 
 
-## Installation
+## Usage
 
 There are a few different ways to use clj-hiera. First, you'll need Graphviz
 installed in order to generate the images. Check your local package manager:
