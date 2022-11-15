@@ -4,8 +4,10 @@
   :license {:name "Public Domain"
             :url "http://unlicense.org/"}
 
-  :deploy-branches ["main"]
   :eval-in-leiningen true
+  :deploy-branches ["main"]
+  :source-paths ["src" "../src"]
 
   :dependencies
-  [[com.mvxcvi/clj-hiera "2.0.0-SNAPSHOT"]])
+  [[org.clojure/tools.namespace "1.3.0"]
+   [rhizome "0.2.9"]])

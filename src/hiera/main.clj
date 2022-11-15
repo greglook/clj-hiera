@@ -2,16 +2,12 @@
   (:gen-class)
   (:require
     [clojure.java.io :as io]
-    [clojure.set :as set]
     [clojure.string :as str]
     [clojure.tools.namespace.dependency :as ns-dep]
     [clojure.tools.namespace.file :as ns-file]
-    [clojure.tools.namespace.find :as ns-find]
     [clojure.tools.namespace.track :as ns-track]
-    [rhizome.dot :as dot]
-    [rhizome.viz :as viz])
+    [rhizome.dot :as dot])
   (:import
-    java.io.File
     java.util.regex.Pattern))
 
 
@@ -130,6 +126,16 @@
 
 ;; ## Graph Writing
 
+(defn- save-graph-image
+  "Write a graph image generated from the DOT text string to the file. This
+  dynamically loads the `rhizome.viz` namespace to avoid graphics desktop
+  switching until absolutely necessary."
+  [file dot-str]
+  (let [save-image (requiring-resolve 'rhizome.viz/save-image)
+        dot->image (requiring-resolve 'rhizome.viz/dot->image)]
+    (save-image (dot->image dot-str) file)))
+
+
 (defn- write-ns-graph
   "Write the namespace dot and image files."
   [data]
@@ -144,7 +150,7 @@
         image-file (io/file (:output data) "namespaces.png")]
     (io/make-parents image-file)
     (spit dot-file dot-str)
-    (viz/save-image (viz/dot->image dot-str) image-file)
+    (save-graph-image image-file dot-str)
     (println "Generated namespace graph at" (str image-file))))
 
 
@@ -158,7 +164,7 @@
         image-file (io/file (:output data) "clusters.png")]
     (io/make-parents image-file)
     (spit dot-file dot-str)
-    (viz/save-image (viz/dot->image dot-str) image-file)
+    (save-graph-image image-file dot-str)
     (println "Generated cluster graph at" (str image-file))))
 
 

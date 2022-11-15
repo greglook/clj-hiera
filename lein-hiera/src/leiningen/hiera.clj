@@ -10,8 +10,8 @@
 
       lein hiera :cluster-depth 2 :layout :horizontal"
   [project & args]
-  (require 'hiera.main)
-  (hiera.main/graph
-    (apply assoc
-           (:hiera project)
-           (map read-string args))))
+  (let [graph (requiring-resolve 'hiera.main/graph)
+        opts (merge {:sources (set (:source-paths project))}
+                    (:hiera project)
+                    (apply array-map (map read-string args)))]
+    (graph opts)))
