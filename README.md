@@ -31,7 +31,7 @@ If you're using `tools.deps`, you can use this by adding an alias to your
 
 ```clojure
 :hiera
-{:deps {io.github.greglook/clj-hiera {:git/tag "2.x.x", :git/sha "..."}}
+{:deps {io.github.greglook/clj-hiera {:git/tag "2.0.0", :git/sha "b14e514"}}
  :exec-fn hiera.main/graph
  :exec-args {,,,}}
 ```
@@ -62,7 +62,7 @@ For Leiningen, you can use this via the `lein-hiera` plugin. Add the following
 to your `project.clj` file or user-level profile:
 
 ```clojure
-[lein-hiera "2.x.x"]
+[lein-hiera "2.0.0"]
 ```
 
 Then you can run:
